@@ -130,16 +130,88 @@ api_player = APIPlayer(
 )
 ```
 
-## Testing
+## Test Suite
 
-Run the test suite:
+The framework includes a comprehensive test suite (`Tests/test_sync_api.py`) that covers all major API operations and error scenarios:
+
+### Car Management Tests
+
+1. **Add Car (`test_add_car`)**
+   - Verifies successful car addition
+   - Validates response format
+   - Confirms car appears in list
+
+2. **Car Count Verification (`test_verify_car_count`)**
+   - Checks count increment after addition
+   - Validates count accuracy
+
+3. **Update Car (`test_update_car`)**
+   - Tests car detail modification
+   - Verifies update persistence
+
+4. **Get Car Details (`test_get_car_details`)**
+   - Retrieves specific car information
+   - Validates data accuracy
+
+### Car Registration Tests
+
+5. **Register Car (`test_register_car`)**
+   - Tests customer registration process
+   - Validates registration data
+
+6. **Registration Count (`test_verify_registration_count`)**
+   - Verifies registration count accuracy
+   - Checks count updates
+
+7. **Delete Registration (`test_delete_registered_car`)**
+   - Tests registration removal
+   - Validates cleanup
+
+### Car Deletion Tests
+
+8. **Remove Car (`test_remove_car`)**
+   - Tests car removal functionality
+   - Verifies successful deletion
+
+9. **Deletion Verification (`test_verify_car_deletion`)**
+   - Confirms car removal
+   - Validates count decrease
+   - Checks data consistency
+
+### Authentication Tests
+
+10. **Forbidden Access (`test_validation_error_403`)**
+    - Tests non-admin access restrictions
+    - Validates 403 error response
+
+11. **No Authentication (`test_validation_error_401_no_auth`)**
+    - Tests missing authentication
+    - Validates 401 error response
+
+12. **Invalid Authentication (`test_validation_error_401_invalid_auth`)**
+    - Tests incorrect credentials
+    - Validates 401 error response
+
+### Running Tests
+
+Execute the full test suite:
 ```bash
 pytest Tests/
 ```
 
-With coverage:
+Run with coverage reporting:
 ```bash
 pytest --cov=. Tests/
+```
+
+Run specific test:
+```bash
+pytest Tests/test_sync_api.py::test_add_car -v
+```
+
+Run with detailed logging:
+```bash
+pytest Tests/test_sync_api.py -v --log-cli-level=INFO
 ```
 
 ## Logging
