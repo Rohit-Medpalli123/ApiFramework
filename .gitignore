@@ -35,6 +35,10 @@ env/
 # Logs
 *.log
 
+# Test Results
+Results/
+allure-results/
+
 # Local development settings
 .env.local
 .env.development.local
@@ -49,3 +53,4 @@ htmlcov/
 .cache
 coverage.xml
 *.cover
+.DS_Store

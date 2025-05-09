@@ -78,13 +78,27 @@ def pytest_configure(config):
     # Store environment option for potential use in tests
     config.option.env = config.getoption("--env")
     
+    # Set up HTML report path if not already set
+    if not hasattr(config.option, 'htmlpath'):
+        results_dir = os.path.join(
+            os.path.dirname(__file__),
+            'Results'
+        )
+        os.makedirs(results_dir, exist_ok=True)
+        config.option.htmlpath = os.path.join(results_dir, 'report.html')
+        logger.info(f"HTML report will be generated at: {config.option.htmlpath}")
+    
+    # Render the report in a single file
+    config.option.self_contained_html = True
+    
     # Add environment info to HTML report
     config._metadata = {
-        'Project Name': 'Cars API Testing',
-        'Environment': config.option.env.upper(),
-        'Tester': os.getenv('USER', 'Unknown'),
-        'Python Version': sys.version.split()[0],
-        'Timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        '🚗 Project': 'Cars API Testing',
+        '🌍 Environment': config.option.env.upper(),
+        '👤 Tester': os.getenv('USER', 'Mystery Tester'),
+        '🐍 Python Version': sys.version.split()[0],
+        '⏰ Started At': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        '🔧 Test Type': 'API Integration Tests'
     }
 
 
@@ -102,25 +116,50 @@ def pytest_runtest_makereport(item, call):
     # Add test description from docstring
     report.description = str(item.function.__doc__)
     
-    # Add duration info
-    if report.when == "call":
-        duration = report.duration
+    # Process the report for all phases (setup, call, teardown)
+    if report.when in ["setup", "call", "teardown"]:
+        duration = getattr(report, 'duration', 0.0)
         if duration > 60:
-            report.duration_formatted = f"{duration/60:.2f} minutes"
+            duration_formatted = f"{duration/60:.2f} minutes"
         else:
-            report.duration_formatted = f"{duration:.2f} seconds"
+            duration_formatted = f"{duration:.2f} seconds"
         
-        # Add extra info to the HTML report
-        extra = getattr(report, 'extra', [])
-        if report.passed:
-            extra.append(('Test Status', 'Passed', 'green'))
-        elif report.failed:
-            extra.append(('Test Status', 'Failed', 'red'))
-        elif report.skipped:
-            extra.append(('Test Status', 'Skipped', 'yellow'))
+        # Initialize extras if not present
+        if not hasattr(report, 'extras'):
+            report.extras = []
         
-        extra.append(('Duration', report.duration_formatted, 'blue'))
-        report.extra = extra
+        # Add test status with proper color
+        status_extra = {
+            'name': f'Status ({report.when})',
+            'content': report.outcome.upper(),
+            'format': 'string',
+            'class': {
+                'passed': 'green',
+                'failed': 'red',
+                'skipped': 'yellow'
+            }.get(report.outcome, 'gray')
+        }
+        report.extras.append(status_extra)
+        
+        # Add duration info
+        duration_extra = {
+            'name': f'Duration ({report.when})',
+            'content': duration_formatted,
+            'format': 'string',
+            'class': 'blue'
+        }
+        report.extras.append(duration_extra)
+        
+        # If there's a failure, add the error message
+        if report.failed:
+            if hasattr(report, 'longrepr'):
+                error_extra = {
+                    'name': 'Error Details',
+                    'content': str(report.longrepr),
+                    'format': 'text',
+                    'class': 'red'
+                }
+                report.extras.append(error_extra)
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
@@ -202,11 +241,6 @@ def setup_logging(env):
         # Store the log file path
         global _log_file_path
         _log_file_path = os.path.join(_results_folder_path, "test.log")
-        
-        # Set pytest-html report path
-        report_path = os.path.join(_results_folder_path, "report.html")
-        if hasattr(pytest, 'config'):
-            pytest.config.option.htmlpath = report_path
             
     except Exception as e:
         logger.error(f"Error during logging setup: {str(e)}")
@@ -225,3 +259,9 @@ def pytest_sessionstart(session):
     
     # Add a separator to the logs
     add_execution_separator(logger, env)
+    
+    # Log HTML report path
+    if hasattr(session.config.option, 'htmlpath'):
+        logger.info(f"HTML report configured at: {session.config.option.htmlpath}")
+    else:
+        logger.warning("HTML report path not configured!")

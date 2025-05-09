@@ -21,6 +21,7 @@ This test suite covers the following scenarios for the car API:
 import os
 import sys
 import pytest
+import allure
 from Conf import api_example_conf as conf
 from Utils.logging_config import get_logger
 
@@ -29,7 +30,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logger = get_logger("test_sync_api")
 
-
+@allure.epic("Cars API Testing Framework")
+@allure.feature("Car Management System")
+@allure.story("Car Addition")
+@allure.description("Test the car addition functionality of the API. This test verifies that a new car can be successfully added to the system with all its details.")
+@allure.tag("API", "Cars", "Create")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_add_car(api_player_fixture, auth_details) -> None:
     """
     Test the car addition functionality of the API.
@@ -74,6 +80,10 @@ def test_add_car(api_player_fixture, auth_details) -> None:
     )
 
 
+@allure.story("Car Count Verification")
+@allure.description("Test to verify that the car count increases correctly after adding a new car. This ensures the system's counting mechanism works properly.")
+@allure.tag("API", "Cars", "Validation")
+@allure.severity(allure.severity_level.NORMAL)
 def test_verify_car_count(api_player_fixture, auth_details, initial_car_count):
     """
     Test to verify the car count after adding a new car.
@@ -101,6 +111,10 @@ def test_verify_car_count(api_player_fixture, auth_details, initial_car_count):
     )
 
 
+@allure.story("Car Update")
+@allure.description("Test to update the details of an existing car. Verifies that car information can be modified successfully.")
+@allure.tag("API", "Cars", "Update")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_update_car(api_player_fixture, auth_details) -> None:
     """
     Test to update the details of an existing car.
@@ -147,6 +161,10 @@ def test_update_car(api_player_fixture, auth_details) -> None:
     )
 
 
+@allure.story("Car Details Retrieval")
+@allure.description("Test to fetch and verify the details of a specific car. Ensures that car information can be retrieved accurately.")
+@allure.tag("API", "Cars", "Read")
+@allure.severity(allure.severity_level.NORMAL)
 def test_get_car_details(api_player_fixture, auth_details) -> None:
     """
     Test to fetch the details of a specific car.
@@ -173,6 +191,10 @@ def test_get_car_details(api_player_fixture, auth_details) -> None:
     assert result_flag, f"Failed to fetch details for car: {car_name}"
 
 
+@allure.story("Car Registration")
+@allure.description("Test to register a car with customer details. Verifies the car registration process works correctly.")
+@allure.tag("API", "Cars", "Registration")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_register_car(api_player_fixture, auth_details) -> None:
     """
     Test to register a car with customer details.
@@ -203,6 +225,10 @@ def test_register_car(api_player_fixture, auth_details) -> None:
 
 
 
+@allure.story("Registration Count Verification")
+@allure.description("Test to verify the count of registered cars. Ensures the registration counting mechanism works properly.")
+@allure.tag("API", "Cars", "Validation")
+@allure.severity(allure.severity_level.NORMAL)
 def test_verify_registration_count(api_player_fixture, auth_details) -> None:
     """
     Test to verify the count of registered cars.
@@ -229,6 +255,10 @@ def test_verify_registration_count(api_player_fixture, auth_details) -> None:
                         f"Expected: {expected_count}, "
                         f"Actual: {actual_count}")
 
+@allure.story("Registered Car Deletion")
+@allure.description("Test to delete a registered car from the system. Verifies that registered cars can be removed properly.")
+@allure.tag("API", "Cars", "Delete", "Registration")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_delete_registered_car(api_player_fixture, auth_details) -> None:
     """
     Test to delete a registered car from the system.
@@ -261,6 +291,10 @@ def test_delete_registered_car(api_player_fixture, auth_details) -> None:
     assert final_count == current_count - 1, "Registration count did not decrease after deletion"
 
 
+@allure.story("Car Removal")
+@allure.description("Test to remove a car from the system. Verifies the car removal operation executes successfully.")
+@allure.tag("API", "Cars", "Delete")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_remove_car(api_player_fixture, auth_details) -> None:
     """
     Test to remove a car from the system.
@@ -288,6 +322,10 @@ def test_remove_car(api_player_fixture, auth_details) -> None:
     assert response.get('successful') is True, "Removal response indicates failure"
 
 
+@allure.story("Car Deletion Verification")
+@allure.description("Test to verify the car count and state after deleting a car. Ensures the deletion was successful and system state is consistent.")
+@allure.tag("API", "Cars", "Validation", "Delete")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_verify_car_deletion(api_player_fixture, auth_details, 
                            initial_car_count) -> None:
     """
@@ -330,6 +368,10 @@ def test_verify_car_deletion(api_player_fixture, auth_details,
     assert removed_car is None, f"Car {car_name} still exists after removal"
 
 
+@allure.story("Authorization Validation")
+@allure.description("Test to verify HTTP 403 error with valid authentication. Ensures proper access control for non-admin users.")
+@allure.tag("API", "Security", "Authorization")
+@allure.severity(allure.severity_level.BLOCKER)
 def test_validation_error_403(api_player_fixture, auth_details) -> None:
     """
     Test to verify HTTP 403 error with valid authentication.
@@ -353,6 +395,10 @@ def test_validation_error_403(api_player_fixture, auth_details) -> None:
     )
 
 
+@allure.story("Authentication Validation")
+@allure.description("Test to verify HTTP 401 error when no authentication is provided. Ensures system requires authentication.")
+@allure.tag("API", "Security", "Authentication")
+@allure.severity(allure.severity_level.BLOCKER)
 def test_validation_error_401_no_auth(api_player_fixture) -> None:
     """
     Test to verify HTTP 401 error when no authentication is provided.
@@ -375,6 +421,10 @@ def test_validation_error_401_no_auth(api_player_fixture) -> None:
     )
 
 
+@allure.story("Invalid Authentication")
+@allure.description("Test to verify HTTP 401 error with invalid authentication. Ensures system properly handles invalid credentials.")
+@allure.tag("API", "Security", "Authentication")
+@allure.severity(allure.severity_level.BLOCKER)
 def test_validation_error_401_invalid_auth(api_player_fixture) -> None:
     """
     Test to verify HTTP 401 error with invalid authentication.
